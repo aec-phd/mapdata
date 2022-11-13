@@ -44,8 +44,8 @@ HousePrices <- HousePrices %>%
                         "(aka ",sQuote(msoa21hclnm),")<br/>",
                         "Median house price for","<br/>",latestyear,": ",
                         ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",
-                               paste0("?",prettyNum(value,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE))),"<br/>",
-                        "(England average = ?",prettyNum(England*1000,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE),")")) %>%
+                               paste0("£",prettyNum(value,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE))),"<br/>",
+                        "(England average = £",prettyNum(England*1000,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE),")")) %>%
   mutate(value = round(value/1000)) %>%
   select(IndID,polycode,value,label)
 
