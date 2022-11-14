@@ -21,6 +21,64 @@ setwd('C:/Users/aecun/OneDrive/Documents/Blackpool Mapping/mapdata')
 # because we need to take the England average from the 'DivergePoint' column
 metadata <- read_csv("Metadata.csv")
 
+#################################################################################################
+# Now reading the ONS MSOA-level modelled income estimates (Equivalised Before Housing Costs)   #
+#################################################################################################
+
+# NB - not using read.csv because it doesn't handle the commas in the amounts of money properly
+
+BHC <- read_csv("https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/smallareaincomeestimatesformiddlelayersuperoutputareasenglandandwales/financialyearending2018/netannualincomebeforehousingcosts2018.csv",skip=5,n_max=7201,
+                   col_names = c("MSOA code","MSOA name","LA code","LA name","Region code","Region name",
+                                 "Income","X8","X9","X10"))
+BHC <- BHC %>%
+  select(`MSOA code`,`MSOA name`,`LA code`,`LA name`,`Region code`,`Region name`,`Income`) %>%
+  filter(`Region name` != "Wales")
+
+BHC$rank <- as.integer(floor(rank(as.numeric(BHC$Income))))
+BHC$decile <- pmin(((BHC$rank-1)%/%679)+1,10)
+BHC$decile <- factor(BHC$decile)
+LocalBHC <- BHC %>% filter(`LA name` %in% c('Blackpool','Fylde','Wyre')) %>% add_column(IndID = "Net_income_BHC")
+
+# Attach House of Commons MSOA names
+LocalBHC <- LocalBHC %>% left_join(msoanames,by = c("MSOA code" = "polycode"))
+
+LocalBHC <- LocalBHC %>%
+  mutate(label = paste0("MSOA: ", `MSOA code`,"<br/>",
+                        "(aka ",sQuote(msoa21hclnm),")<br/>",
+                        "Net Income BHC: £",TotIncome,"<br>",
+                        "Rank: ",rank," (out of 6791)","<br>",
+                        "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = lowest income)")) %>%
+  select(IndID,polycode =`MSOA code`,value = decile,label)
+
+#################################################################################################
+# Now reading the ONS MSOA-level modelled income estimates (Equivalised After Housing Costs)    #
+#################################################################################################
+
+# NB - not using read.csv because it doesn't handle the commas in the amounts of money properly
+
+AHC <- read_csv("https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/smallareaincomeestimatesformiddlelayersuperoutputareasenglandandwales/financialyearending2018/netannualincomeafterhousingcosts2018.csv",skip=5,n_max=7201,
+                col_names = c("MSOA code","MSOA name","LA code","LA name","Region code","Region name",
+                              "Income","X8","X9","X10"))
+AHC <- AHC %>%
+  select(`MSOA code`,`MSOA name`,`LA code`,`LA name`,`Region code`,`Region name`,`Income`) %>%
+  filter(`Region name` != "Wales")
+
+AHC$rank <- as.integer(floor(rank(as.numeric(AHC$Income))))
+AHC$decile <- pmin(((AHC$rank-1)%/%679)+1,10)
+AHC$decile <- factor(AHC$decile)
+LocalAHC <- AHC %>% filter(`LA name` %in% c('Blackpool','Fylde','Wyre')) %>% add_column(IndID = "Net_income_AHC")
+
+# Attach House of Commons MSOA names
+LocalAHC <- LocalAHC %>% left_join(msoanames,by = c("MSOA code" = "polycode"))
+
+LocalAHC <- LocalAHC %>%
+  mutate(label = paste0("MSOA: ", `MSOA code`,"<br/>",
+                        "(aka ",sQuote(msoa21hclnm),")<br/>",
+                        "Net Income AHC: £",TotIncome,"<br>",
+                        "Rank: ",rank," (out of 6791)","<br>",
+                        "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = lowest income)")) %>%
+  select(IndID,polycode =`MSOA code`,value = decile,label)
+
 ###############################################
 # Now reading the ONS MSOA-level house prices #
 ###############################################
@@ -53,6 +111,5 @@ HousePrices <- HousePrices %>%
 # Write all the above to single Other_MSOA.csv file
 #######################################################
 
-# PennineOther <- rbind(PennineNCMP,PennineIncome, HousePrices)
-# write_excel_csv(PennineOther,'PennineOther_MSOA.csv')
-write_excel_csv(HousePrices,'Other_MSOA.csv')
+localOther <- rbind(HousePrices, LocalBHC, LocalAHC)
+write_excel_csv(localOther,'Other_MSOA.csv')
