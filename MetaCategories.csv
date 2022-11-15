@@ -17,3 +17,7 @@ Housing,House_Prices_LSOA
 Housing,Fuel_Poverty
 Economy,Net_income_AHC
 Economy,Net_income_BHC
+Census,Single_Person_Hhld
+Census,Migrant_Indicator
+Population,Single_Person_Hhld
+Population,Migrant_Indicator
