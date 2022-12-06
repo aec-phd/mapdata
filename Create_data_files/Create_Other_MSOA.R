@@ -45,7 +45,7 @@ LocalBHC <- LocalBHC %>% left_join(msoanames,by = c("MSOA code" = "polycode"))
 LocalBHC <- LocalBHC %>%
   mutate(label = paste0("MSOA: ", `MSOA code`,"<br/>",
                         "(aka ",sQuote(msoa21hclnm),")<br/>",
-                        "Net Income BHC: £",TotIncome,"<br>",
+                        "Net Income BHC: £",Income,"<br>",
                         "Rank: ",rank," (out of 6791)","<br>",
                         "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = lowest income)")) %>%
   select(IndID,polycode =`MSOA code`,value = decile,label)
@@ -74,7 +74,7 @@ LocalAHC <- LocalAHC %>% left_join(msoanames,by = c("MSOA code" = "polycode"))
 LocalAHC <- LocalAHC %>%
   mutate(label = paste0("MSOA: ", `MSOA code`,"<br/>",
                         "(aka ",sQuote(msoa21hclnm),")<br/>",
-                        "Net Income AHC: £",TotIncome,"<br>",
+                        "Net Income AHC: £",Income,"<br>",
                         "Rank: ",rank," (out of 6791)","<br>",
                         "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = lowest income)")) %>%
   select(IndID,polycode =`MSOA code`,value = decile,label)
@@ -107,9 +107,15 @@ HousePrices <- HousePrices %>%
   mutate(value = round(value/1000)) %>%
   select(IndID,polycode,value,label)
 
+#################################################################
+# Call the routine that creates MSOA-level data from Local Health
+#################################################################
+source("Create_data_files/Create_Local_Health_MSOA.R") # produces a dataframe called 'LocalHealth'
+
+
 #######################################################
 # Write all the above to single Other_MSOA.csv file
 #######################################################
 
-localOther <- rbind(HousePrices, LocalBHC, LocalAHC)
+localOther <- rbind(HousePrices, LocalBHC, LocalAHC, LocalHealth)
 write_excel_csv(localOther,'Other_MSOA.csv')

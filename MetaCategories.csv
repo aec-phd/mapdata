@@ -21,3 +21,5 @@ Census,Single_Person_Hhld
 Census,Migrant_Indicator
 Population,Single_Person_Hhld
 Population,Migrant_Indicator
+Mortality/Life Expectancy,LE_male
+Mortality/Life Expectancy,LE_female
