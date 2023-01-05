@@ -120,7 +120,7 @@ PrivRent <- read.csv('https://www.nomisweb.co.uk/api/v01/dataset/NM_2072_1.data.
                         "(aka ",sQuote(msoa21hclnm),")<br/>",
                         housecount," properties are privately rented, <br/>",
                         "which is ",round(value,digits=1),"% of the housing stock <br/>",
-                        "(England average 20.5%)",
+                        "(England average 20.5%) <br/>",
                         "<em>(2021 Census results)</em>")) %>%
   select(IndID,polycode,value,label)
 
