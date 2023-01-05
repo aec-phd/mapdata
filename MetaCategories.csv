@@ -23,3 +23,7 @@ Population,Single_Person_Hhld
 Population,Migrant_Indicator
 Mortality/Life Expectancy,LE_male
 Mortality/Life Expectancy,LE_female
+Housing,Private_rented_LSOA
+Census,Private_rented_LSOA
+Housing,Private_rented_MSOA
+Census,Private_rented_MSOA

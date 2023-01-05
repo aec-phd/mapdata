@@ -107,6 +107,23 @@ HousePrices <- HousePrices %>%
   mutate(value = round(value/1000)) %>%
   select(IndID,polycode,value,label)
 
+###############################################
+# Reading Nomis data on private rented tenure
+###############################################
+
+PrivRent <- read.csv('https://www.nomisweb.co.uk/api/v01/dataset/NM_2072_1.data.csv?date=latest&geography=637536726...637536744,637539209...637539217,637539319...637539332&c2021_tenure_9=1004&measures=20100,20301&select=geography_code,measures_name,obs_value') %>%
+  pivot_wider(names_from = MEASURES_NAME, values_from = OBS_VALUE) %>%
+  rename(polycode = GEOGRAPHY_CODE, value = Percent,housecount = Value) %>%
+  add_column(IndID = "Private_rented_MSOA") %>%
+  left_join(msoanames,by = "polycode") %>% # Attach House of Commons MSOA names
+  mutate(label = paste0("MSOA: ",polycode,"<br/>",
+                        "(aka ",sQuote(msoa21hclnm),")<br/>",
+                        housecount," properties are privately rented, <br/>",
+                        "which is ",round(value,digits=1),"% of the housing stock <br/>",
+                        "(England average 20.5%)",
+                        "<em>(2021 Census results)</em>")) %>%
+  select(IndID,polycode,value,label)
+
 #################################################################
 # Call the routine that creates MSOA-level data from Local Health
 #################################################################
@@ -117,5 +134,11 @@ source("Create_data_files/Create_Local_Health_MSOA.R") # produces a dataframe ca
 # Write all the above to single Other_MSOA.csv file
 #######################################################
 
-localOther <- rbind(HousePrices, LocalBHC, LocalAHC, LocalHealth)
+# Fingertips API was not working on 5/1/23 so did not do this:
+# localOther <- rbind(HousePrices, LocalBHC, LocalAHC, LocalHealth, PrivRent)
+
+# Did this instead:
+existingLocalOther <- read.csv('Other_MSOA.csv',fileEncoding = 'UTF-8-BOM')
+localOther <- rbind(existingLocalOther,PrivRent)
+
 write_excel_csv(localOther,'Other_MSOA.csv')
