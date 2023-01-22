@@ -129,6 +129,35 @@ PrivRent <- read.csv('https://www.nomisweb.co.uk/api/v01/dataset/NM_2072_1.data.
 #################################################################
 source("Create_data_files/Create_Local_Health_MSOA.R") # produces a dataframe called 'LocalHealth'
 
+#################################################################
+# Reading Census=based modelled poverty estimates from ONS
+#################################################################
+
+# Method of downloading and opening .csv file taken from Colin Angus's example at https://github.com/VictimOfMaths/Experiments/blob/master/COVIDLAHeatmap.R
+
+temp <- tempfile()
+source <- "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/healthinequalities/datasets/estimatingthenumberofpeoplewithcardiovascularorrespiratoryconditionslivinginpovertyengland/2021/datadownload20221216accessible.xlsx"
+temp <- curl_download(url=source, destfile=temp, quiet=FALSE, mode="wb")
+poverty <- read_excel(temp, sheet=4, skip=4 )
+
+poverty <- poverty %>%
+  rename(`MSOA Name` = `Middle Layer Super Output Area Name`,`polycode` = `Middle Layer Super Output Area Code`, value = Percent) %>%
+  filter(substring(`MSOA Name`,1,nchar(`MSOA Name`)-4) %in% c('Blackpool','Fylde','Wyre')) %>%
+  filter(Outcome == "Living in Poverty") %>%
+  add_column(IndID = "Poverty")
+  
+# Attach House of Commons MSOA names
+poverty <- poverty %>% left_join(msoanames,by = c("polycode" = "polycode"))
+
+poverty <- poverty %>%
+  mutate(label = paste0("MSOA: ", polycode,"<br/>",
+                        "(aka ",sQuote(msoa21hclnm),")<br/>",
+                        round(value,digits=1),"% of people are likely to be living<br/>",
+                        "in relative poverty after housing costs<br/>",
+                        "(England average 20.1%) <br/>",
+                        "<em>(Experimental modelled estimates from ONS)</em>")) %>%
+  select(IndID,polycode,value,label)
+                       
 
 #######################################################
 # Write all the above to single Other_MSOA.csv file
@@ -138,7 +167,11 @@ source("Create_data_files/Create_Local_Health_MSOA.R") # produces a dataframe ca
 # localOther <- rbind(HousePrices, LocalBHC, LocalAHC, LocalHealth, PrivRent)
 
 # Did this instead:
+# existingLocalOther <- read.csv('Other_MSOA.csv',fileEncoding = 'UTF-8-BOM')
+# localOther <- rbind(existingLocalOther,PrivRent)
+
+# Did this when adding poverty:
 existingLocalOther <- read.csv('Other_MSOA.csv',fileEncoding = 'UTF-8-BOM')
-localOther <- rbind(existingLocalOther,PrivRent)
+localOther <- rbind(existingLocalOther,poverty)
 
 write_excel_csv(localOther,'Other_MSOA.csv')

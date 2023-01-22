@@ -12,6 +12,7 @@ Indices of Deprivation,IDAOPI
 Economy,House_Prices_MSOA
 Economy,House_Prices_LSOA
 Economy,Fuel_Poverty
+Economy,Poverty
 Housing,House_Prices_MSOA
 Housing,House_Prices_LSOA
 Housing,Fuel_Poverty
@@ -27,3 +28,5 @@ Housing,Private_rented_LSOA
 Census,Private_rented_LSOA
 Housing,Private_rented_MSOA
 Census,Private_rented_MSOA
+Poverty,Fuel_Poverty
+Poverty,Poverty
