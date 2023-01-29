@@ -9,6 +9,7 @@ Indices of Deprivation,Barriers_dep
 Indices of Deprivation,Env_dep
 Indices of Deprivation,IDACI
 Indices of Deprivation,IDAOPI
+Indices of Deprivation,Mood_dep
 Economy,House_Prices_MSOA
 Economy,House_Prices_LSOA
 Economy,Fuel_Poverty
@@ -30,3 +31,5 @@ Housing,Private_rented_MSOA
 Census,Private_rented_MSOA
 Poverty,Fuel_Poverty
 Poverty,Poverty
+Health,Mood_dep
+Health,Health_dep

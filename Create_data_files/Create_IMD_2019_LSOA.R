@@ -63,3 +63,18 @@ Dep <- Dep %>%
     mutate(value = as.integer(value))
   
 write_csv(Dep,"IMD_2019_LSOA.csv")
+
+# Mood and anxiety composite indicator comes from a different file, and has been manipulated in Excel to assign deciles using the PHE tool at https://fingertips.phe.org.uk/profile/guidance
+
+MoodDep <- read.csv("MoodAnxietyDep.csv") %>%
+  filter(Local.Authority.District.name..2019. %in% c('Blackpool','Fylde','Wyre')) %>%
+  add_column(IndID = "Mood_dep") %>%
+  rename(polycode = `LSOA.code..2011.`,rank=MoodRank,decile=MoodDecile) %>%
+  mutate(label = paste0("LSOA: ", polycode,"<br/>",
+                        "Rank: ",rank," (out of 32844)","<br>",
+                        "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = most deprived)")) %>%
+  select(IndID,polycode,value = decile,label)
+
+# Was adding MoodDep later, without running the whole script
+Dep <- read.csv('IMD_2019_LSOA.csv',fileEncoding = 'UTF-8-BOM') # not needed if running whole script
+write_csv(bind_rows(Dep,MoodDep),"IMD_2019_LSOA.csv")
